@@ -1,0 +1,47 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:paddingBottom="@dimen/activity_vertical_margin"
+	android:paddingLeft="@dimen/activity_horizontal_margin"
+	android:paddingRight="@dimen/activity_horizontal_margin"
+	android:paddingTop="@dimen/activity_vertical_margin"
+	tools:context=".Timer" >
+
+	<TextView
+		android:id="@+id/timer"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_alignParentTop="true"
+		android:layout_centerHorizontal="true"
+		android:layout_marginTop="86dp"
+		android:textSize="50sp"
+		android:text="@string/default_timer_text" />
+
+	<RelativeLayout
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_below="@+id/timer"
+		android:layout_marginTop="20dp"
+		android:layout_centerHorizontal="true" >
+
+		<ImageButton
+			android:id="@+id/imageButtonPlayStop"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginRight="10dp"
+			android:contentDescription="@string/play_stop_button_desc"
+			android:src="@android:drawable/ic_media_play" />
+
+		<ImageButton
+			android:id="@+id/imageButtonLapReset"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginLeft="10dp"
+			android:layout_alignTop="@+id/imageButtonPlayStop"
+			android:layout_toRightOf="@id/imageButtonPlayStop"
+			android:contentDescription="@string/lap_reset_button_desc"
+			android:src="@android:drawable/ic_menu_revert" />
+	</RelativeLayout>
+
+</RelativeLayout>
