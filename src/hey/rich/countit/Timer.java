@@ -2,28 +2,27 @@ package hey.rich.countit;
 
 import java.util.TimerTask;
 
-import android.app.Activity;
-import android.content.SharedPreferences;
-import android.os.Bundle;
+import wei.mark.standout.StandOutWindow;
+import wei.mark.standout.constants.StandOutFlags;
+import wei.mark.standout.ui.Window;
+import android.content.Intent;
 import android.os.Handler;
 import android.os.Handler.Callback;
 import android.os.Message;
+import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
-public class Timer extends Activity {
+public class Timer extends StandOutWindow {
 
 	private static final String LOG_TAG = "Timer";
-	private static final String CURRENT_TIMER_VALUE = "current_timer_value";
-	private static final String SHARED_PREFERENCES = "shared_preferences_name";
-	private static final String RUNNING_STATE = STATE.RUNNING.toString();
 
 	private TextView mTimerText;
 	private ImageButton mStartStopButton;
 	private ImageButton mLapResetButton;
-
-	private SharedPreferences mPrefs;
 
 	/** Contains various states application can be in */
 	private static enum STATE {
@@ -43,22 +42,49 @@ public class Timer extends Activity {
 	private long mCurrentTime = 0L;
 
 	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_timer);
+	public String getAppName() {
+		return "FloatingTimerWindow";
+	}
 
-		mPrefs = getSharedPreferences(SHARED_PREFERENCES, 0);
+	@Override
+	public int getAppIcon() {
+		return android.R.drawable.ic_menu_close_clear_cancel;
+	}
 
-		mCurrentState = (mPrefs.getBoolean(RUNNING_STATE, false)) ? STATE.RUNNING
-				: STATE.STOPPED;
+	@Override
+	public void createAndAttachView(int id, FrameLayout frame) {
+		Log.d(LOG_TAG, "in createAndAttachView");
+		LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+		View view = inflater.inflate(R.layout.activity_timer, frame, true);
+
+		mStartStopButton = (ImageButton) view
+				.findViewById(R.id.imageButtonPlayStop);
+		mLapResetButton = (ImageButton) view
+				.findViewById(R.id.imageButtonLapReset);
+
+		// Set default state to stoped
+		mCurrentState = STATE.STOPPED;
+
+		updateButtonIcons();
+
+		mTimerText = (TextView) view.findViewById(R.id.timer);
 
 		setUpViewElements();
 
-		mCurrentTime = mPrefs.getLong(CURRENT_TIMER_VALUE, 0L);
-		updateTime(mCurrentTime);
-
-		// TODO: Check if we have any saved data and then load the correct state
+		/*
+		 * When creating the timer, we don't want any "current time" as we are
+		 * only ever going to be created from the button press in the main
+		 * activity, if we are ever killed and then restored it is not currently
+		 * expected of us to keep the previous value of the timer.
+		 * 
+		 * So we reset the current time to 0, if this is not present, when we
+		 * update the timer from this call, we will be calling updateTimer with
+		 * the state equal to STATE.STOPPED, this means that we will be saving
+		 * the current time something we do not want or need to do - this leads
+		 * to overflow and an incorrect timer value.
+		 */
 		updateTimer();
+		mCurrentTime = 0L;
 	}
 
 	/**
@@ -72,12 +98,6 @@ public class Timer extends Activity {
 	private void setUpViewElements() {
 		// Set the format of the timer
 		// TODO: make this customizable
-		mStartStopButton = (ImageButton) findViewById(R.id.imageButtonPlayStop);
-		mLapResetButton = (ImageButton) findViewById(R.id.imageButtonLapReset);
-
-		updateButtonIcons();
-
-		mTimerText = (TextView) findViewById(R.id.timer);
 
 		mStartStopButton.setOnClickListener(new View.OnClickListener() {
 
@@ -85,6 +105,7 @@ public class Timer extends Activity {
 			public void onClick(View v) {
 				// TODO: UPDATE BUTTONS HAHA
 				// Check state
+				Log.d(LOG_TAG, "Clicked stop/start button");
 				if (mCurrentState == STATE.STOPPED) {
 
 					mCurrentState = STATE.RUNNING;
@@ -110,6 +131,7 @@ public class Timer extends Activity {
 			@Override
 			public void onClick(View v) {
 				// Check state
+				Log.d(LOG_TAG, "Clicked lap/reset button");
 				if (mCurrentState == STATE.STOPPED) {
 					// Reset time
 					if (!mClearTimer) {
@@ -124,23 +146,6 @@ public class Timer extends Activity {
 				}
 			}
 		});
-	}
-
-	@Override
-	protected void onPause() {
-		super.onPause();
-		// Using shared preferences because we want to save state if we're
-		// killed
-		SharedPreferences.Editor ed = mPrefs.edit();
-		// TODO: Check if this will break with mashing buttons and rotating
-		if (mCurrentState == STATE.RUNNING) {
-			mCurrentTime = System.currentTimeMillis() - mStartTime;
-		}
-		ed.putLong(CURRENT_TIMER_VALUE, mCurrentTime);
-		ed.putBoolean(RUNNING_STATE, (mCurrentState == STATE.RUNNING));
-		ed.commit();
-		// TODO: Investigate if I need to save the current state in here as
-		// well?
 	}
 
 	// Timer
@@ -173,6 +178,9 @@ public class Timer extends Activity {
 			}
 
 		} else {
+			if (mCurrentState == null) {
+				throw new RuntimeException("Current state is null");
+			}
 			// Invalid state
 			throw new RuntimeException("Invalid state: "
 					+ mCurrentState.toString());
@@ -183,14 +191,17 @@ public class Timer extends Activity {
 	/** Updates the button icons based on state {@link mCurrentState} */
 	private void updateButtonIcons() {
 		if (mCurrentState == STATE.RUNNING) {
-			mStartStopButton.setImageResource(android.R.drawable.ic_media_pause);
+			mStartStopButton
+					.setImageResource(android.R.drawable.ic_media_pause);
 			mLapResetButton.setImageResource(android.R.drawable.ic_menu_save);
 
 		} else if (mCurrentState == STATE.STOPPED) {
-			mStartStopButton
-					.setImageResource(android.R.drawable.ic_media_play);
+			mStartStopButton.setImageResource(android.R.drawable.ic_media_play);
 			mLapResetButton.setImageResource(android.R.drawable.ic_menu_revert);
 		} else {
+			if (mCurrentState == null) {
+				throw new RuntimeException("Current state is null");
+			}
 			throw new RuntimeException("Invalid state: "
 					+ mCurrentState.toString());
 		}
@@ -246,5 +257,29 @@ public class Timer extends Activity {
 		public void run() {
 			h.sendEmptyMessage(0);
 		}
+	}
+
+	// Center the window
+	@Override
+	public StandOutLayoutParams getParams(int id, Window window) {
+		return new StandOutLayoutParams(id, 250, 300,
+				StandOutLayoutParams.CENTER, StandOutLayoutParams.CENTER);
+	}
+
+	// Move the window by dragging the view
+	@Override
+	public int getFlags(int id) {
+		return super.getFlags(id) | StandOutFlags.FLAG_BODY_MOVE_ENABLE
+				| StandOutFlags.FLAG_WINDOW_FOCUSABLE_DISABLE;
+	}
+
+	@Override
+	public String getPersistentNotificationMessage(int id) {
+		return getString(R.string.floating_notification_cancel_text);
+	}
+
+	@Override
+	public Intent getPersistentNotificationIntent(int id) {
+		return StandOutWindow.getCloseIntent(this, Timer.class, id);
 	}
 }

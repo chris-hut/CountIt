@@ -7,5 +7,7 @@
 	<string name="play_stop_button_desc">Button used to play/resume or stop timer</string>
 	<string name="lap_reset_button_desc">Button used to lap or reset timer</string>
 	<string name="default_timer_text">00:00:00</string>
+	<string name="launch_floating_timer">Launch Timer</string>
+	<string name="floating_notification_cancel_text">Click to cancel window</string>
 
 </resources>
