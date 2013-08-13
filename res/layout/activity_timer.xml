@@ -1,40 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:layout_width="match_parent"
-	android:layout_height="match_parent" >
-
-	<TextView
-		android:id="@+id/timer"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_alignParentTop="true"
-		android:layout_centerHorizontal="true"
-		android:text="@string/default_timer_text" />
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="fill_parent"
+	android:layout_height="fill_parent" >
 
 	<RelativeLayout
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_below="@+id/timer"
-		android:layout_centerHorizontal="true"
-		android:layout_marginTop="20dp" >
+		android:layout_width="fill_parent"
+		android:layout_height="fill_parent" >
 
-		<ImageButton
-			android:id="@+id/imageButtonPlayStop"
+		<TextView
+			android:id="@+id/timer"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:layout_marginRight="10dp"
-			android:contentDescription="@string/play_stop_button_desc"
-			android:src="@android:drawable/ic_media_play" />
+			android:layout_alignParentTop="true"
+			android:layout_centerHorizontal="true"
+			android:text="@string/default_timer_text" />
 
-		<ImageButton
-			android:id="@+id/imageButtonLapReset"
+		<RelativeLayout
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:layout_alignTop="@+id/imageButtonPlayStop"
-			android:layout_marginLeft="10dp"
-			android:layout_toRightOf="@id/imageButtonPlayStop"
-			android:contentDescription="@string/lap_reset_button_desc"
-			android:src="@android:drawable/ic_menu_revert" />
+			android:layout_below="@+id/timer"
+			android:layout_centerHorizontal="true"
+			android:layout_marginTop="20dp" >
+
+			<ImageButton
+				android:id="@+id/imageButtonPlayStop"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_marginRight="10dp"
+				android:contentDescription="@string/play_stop_button_desc"
+				android:src="@android:drawable/ic_media_play" />
+
+			<ImageButton
+				android:id="@+id/imageButtonLapReset"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_alignTop="@+id/imageButtonPlayStop"
+				android:layout_marginLeft="10dp"
+				android:layout_toRightOf="@id/imageButtonPlayStop"
+				android:contentDescription="@string/lap_reset_button_desc"
+				android:src="@android:drawable/ic_menu_revert" />
+		</RelativeLayout>
 	</RelativeLayout>
 
-</RelativeLayout>
+</merge>

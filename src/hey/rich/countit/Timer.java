@@ -1,20 +1,26 @@
 package hey.rich.countit;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.TimerTask;
 
 import wei.mark.standout.StandOutWindow;
 import wei.mark.standout.constants.StandOutFlags;
 import wei.mark.standout.ui.Window;
 import android.content.Intent;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Handler.Callback;
 import android.os.Message;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class Timer extends StandOutWindow {
 
@@ -33,10 +39,10 @@ public class Timer extends StandOutWindow {
 	 * If true when {@link updateValue()} is called and {@link mCurretState} is
 	 * set to STATE.STOPPED, current time will be cleared/reset to 0
 	 */
-	private static boolean mClearTimer = false;
+	private boolean mClearTimer = false;
 
 	/** Current state of the application */
-	private static STATE mCurrentState;
+	private  STATE mCurrentState;
 
 	private long mStartTime = 0L;
 	private long mCurrentTime = 0L;
@@ -53,7 +59,7 @@ public class Timer extends StandOutWindow {
 
 	@Override
 	public void createAndAttachView(int id, FrameLayout frame) {
-		Log.d(LOG_TAG, "in createAndAttachView");
+		Log.d(LOG_TAG, "Created timer with id: " + id);
 		LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
 		View view = inflater.inflate(R.layout.activity_timer, frame, true);
 
@@ -69,6 +75,7 @@ public class Timer extends StandOutWindow {
 
 		mTimerText = (TextView) view.findViewById(R.id.timer);
 
+		mCurrentTime = 0L;
 		setUpViewElements();
 
 		/*
@@ -221,14 +228,14 @@ public class Timer extends StandOutWindow {
 		updateTimerText(minutes, seconds, milliSeconds);
 
 	}
-
-	final Handler h = new Handler(new Callback() {
+	
+	final Handler h = new Handler(new Callback(){
 		@Override
-		public boolean handleMessage(Message msg) {
+		public boolean handleMessage(Message msg){
 			long millis = System.currentTimeMillis() - mStartTime;
 			// Only care about every 10 milliseconds
 			updateTime(millis);
-
+			
 			return false;
 		}
 	});
@@ -259,27 +266,97 @@ public class Timer extends StandOutWindow {
 		}
 	}
 
-	// Center the window
+	// Make every window essentially the same size
 	@Override
 	public StandOutLayoutParams getParams(int id, Window window) {
-		return new StandOutLayoutParams(id, 250, 300,
-				StandOutLayoutParams.CENTER, StandOutLayoutParams.CENTER);
+		return new StandOutLayoutParams(id, 400, 300,
+				StandOutLayoutParams.AUTO_POSITION,
+				StandOutLayoutParams.AUTO_POSITION, 100, 100);
 	}
 
-	// Move the window by dragging the view
+	// / We want system window decorations, we want to drag the body, we want
+	// the ability to hide windows, and we want to tap the window to bring to
+	// front
 	@Override
 	public int getFlags(int id) {
-		return super.getFlags(id) | StandOutFlags.FLAG_BODY_MOVE_ENABLE
-				| StandOutFlags.FLAG_WINDOW_FOCUSABLE_DISABLE;
+		return StandOutFlags.FLAG_DECORATION_SYSTEM
+				| StandOutFlags.FLAG_BODY_MOVE_ENABLE
+				| StandOutFlags.FLAG_WINDOW_HIDE_ENABLE
+				| StandOutFlags.FLAG_WINDOW_EDGE_LIMITS_ENABLE
+				| StandOutFlags.FLAG_WINDOW_PINCH_RESIZE_ENABLE;
 	}
 
 	@Override
 	public String getPersistentNotificationMessage(int id) {
-		return getString(R.string.floating_notification_cancel_text);
+		return "Click to close " + getAppName();
+	}
+
+	@Override
+	public String getPersistentNotificationTitle(int id) {
+		return getAppName() + " Running";
 	}
 
 	@Override
 	public Intent getPersistentNotificationIntent(int id) {
 		return StandOutWindow.getCloseIntent(this, Timer.class, id);
 	}
+
+	@Override
+	public int getHiddenIcon() {
+		return android.R.drawable.ic_menu_info_details;
+	}
+
+	@Override
+	public String getHiddenNotificationTitle(int id) {
+		return getAppName() + " Hidden";
+	}
+
+	@Override
+	public String getHiddenNotificationMessage(int id) {
+		return "Click to restore #" + id;
+	}
+
+	// return an Intent that restores the MultiWindow
+	@Override
+	public Intent getHiddenNotificationIntent(int id) {
+		return StandOutWindow.getShowIntent(this, getClass(), id);
+	}
+
+	@Override
+	public Animation getShowAnimation(int id) {
+		if (isExistingId(id)) {
+			// restore
+			return AnimationUtils.loadAnimation(this,
+					android.R.anim.slide_in_left);
+		} else {
+			// show
+			return super.getShowAnimation(id);
+		}
+	}
+
+	@Override
+	public Animation getHideAnimation(int id) {
+		return AnimationUtils.loadAnimation(this,
+				android.R.anim.slide_out_right);
+	}
+
+	@Override
+	public List<DropDownListItem> getDropDownItems(int id){
+		List<DropDownListItem> items = new ArrayList<DropDownListItem>();
+		items.add(new DropDownListItem(android.R.drawable.ic_menu_help, "About", new Runnable() {
+			@Override
+			public void run(){
+				Toast.makeText(Timer.this, getAppName() + " is a timer!", Toast.LENGTH_SHORT).show();
+			}
+		}));
+		items.add(new DropDownListItem(android.R.drawable.ic_menu_preferences, "Settings", new Runnable() {
+			@Override
+			public void run(){
+				// TODO: Add some settings here!
+				Toast.makeText(Timer.this, "No settings yet", Toast.LENGTH_SHORT).show();
+			}
+		}));
+		return items;
+	}
+	
 }
