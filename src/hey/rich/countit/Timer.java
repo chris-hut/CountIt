@@ -8,7 +8,6 @@ import wei.mark.standout.StandOutWindow;
 import wei.mark.standout.constants.StandOutFlags;
 import wei.mark.standout.ui.Window;
 import android.content.Intent;
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.Handler.Callback;
 import android.os.Message;
@@ -18,7 +17,7 @@ import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.FrameLayout;
-import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -27,8 +26,9 @@ public class Timer extends StandOutWindow {
 	private static final String LOG_TAG = "Timer";
 
 	private TextView mTimerText;
-	private ImageButton mStartStopButton;
-	private ImageButton mLapResetButton;
+	private ImageView mStartStopView;
+	private ImageView mLapResetView;
+	private ImageView mCloseView;
 
 	/** Contains various states application can be in */
 	private static enum STATE {
@@ -42,31 +42,34 @@ public class Timer extends StandOutWindow {
 	private boolean mClearTimer = false;
 
 	/** Current state of the application */
-	private  STATE mCurrentState;
+	private STATE mCurrentState;
 
 	private long mStartTime = 0L;
 	private long mCurrentTime = 0L;
+	
+	private int mId;
 
 	@Override
 	public String getAppName() {
-		return "FloatingTimerWindow";
+		return "Timer";
 	}
 
 	@Override
 	public int getAppIcon() {
-		return android.R.drawable.ic_menu_close_clear_cancel;
+		return android.R.drawable.ic_menu_more;
 	}
 
 	@Override
 	public void createAndAttachView(int id, FrameLayout frame) {
+		mId = id;
 		Log.d(LOG_TAG, "Created timer with id: " + id);
 		LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
 		View view = inflater.inflate(R.layout.activity_timer, frame, true);
 
-		mStartStopButton = (ImageButton) view
+		mStartStopView = (ImageView) view
 				.findViewById(R.id.imageButtonPlayStop);
-		mLapResetButton = (ImageButton) view
-				.findViewById(R.id.imageButtonLapReset);
+		mLapResetView = (ImageView) view.findViewById(R.id.imageButtonLapReset);
+		mCloseView = (ImageView) view.findViewById(R.id.timer_close);
 
 		// Set default state to stoped
 		mCurrentState = STATE.STOPPED;
@@ -106,7 +109,7 @@ public class Timer extends StandOutWindow {
 		// Set the format of the timer
 		// TODO: make this customizable
 
-		mStartStopButton.setOnClickListener(new View.OnClickListener() {
+		mStartStopView.setOnClickListener(new View.OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
@@ -133,7 +136,7 @@ public class Timer extends StandOutWindow {
 			}
 		});
 
-		mLapResetButton.setOnClickListener(new View.OnClickListener() {
+		mLapResetView.setOnClickListener(new View.OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
@@ -151,6 +154,15 @@ public class Timer extends StandOutWindow {
 					// Create a lap
 					// TODO: implement lap things
 				}
+			}
+		});
+
+		mCloseView.setOnClickListener(new View.OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				// Close the window he-yo
+				close(mId);
 			}
 		});
 	}
@@ -198,13 +210,12 @@ public class Timer extends StandOutWindow {
 	/** Updates the button icons based on state {@link mCurrentState} */
 	private void updateButtonIcons() {
 		if (mCurrentState == STATE.RUNNING) {
-			mStartStopButton
-					.setImageResource(android.R.drawable.ic_media_pause);
-			mLapResetButton.setImageResource(android.R.drawable.ic_menu_save);
+			mStartStopView.setImageResource(android.R.drawable.ic_media_pause);
+			mLapResetView.setImageResource(android.R.drawable.ic_menu_save);
 
 		} else if (mCurrentState == STATE.STOPPED) {
-			mStartStopButton.setImageResource(android.R.drawable.ic_media_play);
-			mLapResetButton.setImageResource(android.R.drawable.ic_menu_revert);
+			mStartStopView.setImageResource(android.R.drawable.ic_media_play);
+			mLapResetView.setImageResource(android.R.drawable.ic_menu_revert);
 		} else {
 			if (mCurrentState == null) {
 				throw new RuntimeException("Current state is null");
@@ -228,14 +239,14 @@ public class Timer extends StandOutWindow {
 		updateTimerText(minutes, seconds, milliSeconds);
 
 	}
-	
-	final Handler h = new Handler(new Callback(){
+
+	final Handler h = new Handler(new Callback() {
 		@Override
-		public boolean handleMessage(Message msg){
+		public boolean handleMessage(Message msg) {
 			long millis = System.currentTimeMillis() - mStartTime;
 			// Only care about every 10 milliseconds
 			updateTime(millis);
-			
+
 			return false;
 		}
 	});
@@ -279,11 +290,9 @@ public class Timer extends StandOutWindow {
 	// front
 	@Override
 	public int getFlags(int id) {
-		return StandOutFlags.FLAG_DECORATION_SYSTEM
-				| StandOutFlags.FLAG_BODY_MOVE_ENABLE
-				| StandOutFlags.FLAG_WINDOW_HIDE_ENABLE
+		return StandOutFlags.FLAG_BODY_MOVE_ENABLE
 				| StandOutFlags.FLAG_WINDOW_EDGE_LIMITS_ENABLE
-				| StandOutFlags.FLAG_WINDOW_PINCH_RESIZE_ENABLE;
+				| StandOutFlags.FLAG_WINDOW_FOCUSABLE_DISABLE;
 	}
 
 	@Override
@@ -299,27 +308,6 @@ public class Timer extends StandOutWindow {
 	@Override
 	public Intent getPersistentNotificationIntent(int id) {
 		return StandOutWindow.getCloseIntent(this, Timer.class, id);
-	}
-
-	@Override
-	public int getHiddenIcon() {
-		return android.R.drawable.ic_menu_info_details;
-	}
-
-	@Override
-	public String getHiddenNotificationTitle(int id) {
-		return getAppName() + " Hidden";
-	}
-
-	@Override
-	public String getHiddenNotificationMessage(int id) {
-		return "Click to restore #" + id;
-	}
-
-	// return an Intent that restores the MultiWindow
-	@Override
-	public Intent getHiddenNotificationIntent(int id) {
-		return StandOutWindow.getShowIntent(this, getClass(), id);
 	}
 
 	@Override
@@ -341,22 +329,34 @@ public class Timer extends StandOutWindow {
 	}
 
 	@Override
-	public List<DropDownListItem> getDropDownItems(int id){
+	public List<DropDownListItem> getDropDownItems(int id) {
 		List<DropDownListItem> items = new ArrayList<DropDownListItem>();
-		items.add(new DropDownListItem(android.R.drawable.ic_menu_help, "About", new Runnable() {
-			@Override
-			public void run(){
-				Toast.makeText(Timer.this, getAppName() + " is a timer!", Toast.LENGTH_SHORT).show();
-			}
-		}));
-		items.add(new DropDownListItem(android.R.drawable.ic_menu_preferences, "Settings", new Runnable() {
-			@Override
-			public void run(){
-				// TODO: Add some settings here!
-				Toast.makeText(Timer.this, "No settings yet", Toast.LENGTH_SHORT).show();
-			}
-		}));
+		items.add(new DropDownListItem(android.R.drawable.ic_menu_help,
+				"About", new Runnable() {
+					@Override
+					public void run() {
+						Toast.makeText(Timer.this,
+								getAppName() + " is a timer!",
+								Toast.LENGTH_SHORT).show();
+					}
+				}));
+		items.add(new DropDownListItem(android.R.drawable.ic_menu_preferences,
+				"Settings", new Runnable() {
+					@Override
+					public void run() {
+						// TODO: Add some settings here!
+						Toast.makeText(Timer.this, "No settings yet",
+								Toast.LENGTH_SHORT).show();
+					}
+				}));
 		return items;
 	}
-	
+
+	@Override
+	public boolean onFocusChange(int id, Window window, boolean focus) {
+		// hide the window until someone restores it.
+		// TODO: Make this actually work
+		// if(!focus) hide(id);
+		return false;
+	}
 }

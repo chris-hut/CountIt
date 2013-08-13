@@ -7,22 +7,42 @@
 		android:layout_width="fill_parent"
 		android:layout_height="fill_parent" >
 
-		<TextView
-			android:id="@+id/timer"
+		<ImageView
+			android:id="@+id/corner"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
+			android:layout_alignParentBottom="true"
+			android:layout_alignParentRight="true"
+			android:contentDescription="@string/corner_description"
+			android:src="@drawable/corner" />
+
+		<ImageView
+			android:id="@+id/timer_menu"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_alignParentBottom="true"
+			android:layout_alignParentLeft="true"
+			android:contentDescription="@string/menu_description"
+			android:src="@android:drawable/ic_menu_more" />
+
+		<ImageView
+			android:id="@+id/timer_close"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_alignParentLeft="true"
 			android:layout_alignParentTop="true"
-			android:layout_centerHorizontal="true"
-			android:text="@string/default_timer_text" />
+			android:contentDescription="@string/close_description"
+			android:src="@android:drawable/ic_menu_close_clear_cancel" />
 
 		<RelativeLayout
+			android:id="@+id/timer_buttons_layout"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:layout_below="@+id/timer"
 			android:layout_centerHorizontal="true"
-			android:layout_marginTop="20dp" >
+			android:layout_centerVertical="true"
+			android:gravity="center" >
 
-			<ImageButton
+			<ImageView
 				android:id="@+id/imageButtonPlayStop"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
@@ -30,7 +50,7 @@
 				android:contentDescription="@string/play_stop_button_desc"
 				android:src="@android:drawable/ic_media_play" />
 
-			<ImageButton
+			<ImageView
 				android:id="@+id/imageButtonLapReset"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
@@ -40,6 +60,15 @@
 				android:contentDescription="@string/lap_reset_button_desc"
 				android:src="@android:drawable/ic_menu_revert" />
 		</RelativeLayout>
+
+		<TextView
+			android:id="@+id/timer"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_above="@+id/relativeLayout1"
+			android:layout_centerHorizontal="true"
+			android:text="@string/default_timer_text"
+			android:textSize="20sp" />
 	</RelativeLayout>
 
 </merge>
