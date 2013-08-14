@@ -38,8 +38,8 @@
 			android:id="@+id/timer_buttons_layout"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
+			android:layout_above="@+id/timer_menu"
 			android:layout_centerHorizontal="true"
-			android:layout_centerVertical="true"
 			android:gravity="center" >
 
 			<ImageView
@@ -65,10 +65,11 @@
 			android:id="@+id/timer"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:layout_above="@+id/relativeLayout1"
+			android:layout_above="@+id/timer_buttons_layout"
+			android:layout_below="@+id/timer_close"
 			android:layout_centerHorizontal="true"
 			android:text="@string/default_timer_text"
-			android:textSize="20sp" />
+			android:textSize="40sp" />
 	</RelativeLayout>
 
 </merge>

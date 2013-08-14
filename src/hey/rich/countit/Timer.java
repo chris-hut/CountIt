@@ -288,9 +288,9 @@ public class Timer extends StandOutWindow {
 	// Make every window essentially the same size
 	@Override
 	public StandOutLayoutParams getParams(int id, Window window) {
-		return new StandOutLayoutParams(id, 400, 300,
+		return new StandOutLayoutParams(id, 350, 300,
 				StandOutLayoutParams.CENTER,
-				StandOutLayoutParams.CENTER, 100, 100);
+				StandOutLayoutParams.CENTER, 350, 300);
 	}
 
 	// / We want system window decorations, we want to drag the body, we want
