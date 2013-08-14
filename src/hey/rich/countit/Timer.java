@@ -46,7 +46,7 @@ public class Timer extends StandOutWindow {
 
 	private long mStartTime = 0L;
 	private long mCurrentTime = 0L;
-	
+
 	private int mId;
 
 	@Override
@@ -74,11 +74,8 @@ public class Timer extends StandOutWindow {
 		// Set default state to stoped
 		mCurrentState = STATE.STOPPED;
 
-		updateButtonIcons();
-
 		mTimerText = (TextView) view.findViewById(R.id.timer);
 
-		mCurrentTime = 0L;
 		setUpViewElements();
 
 		/*
@@ -93,10 +90,21 @@ public class Timer extends StandOutWindow {
 		 * the current time something we do not want or need to do - this leads
 		 * to overflow and an incorrect timer value.
 		 */
+		mCurrentTime = 0L;
 		updateTimer();
 		mCurrentTime = 0L;
 	}
 
+	// Called before this window is closed
+	@Override
+	public boolean onClose(int id, Window window){
+		// State should be stoped
+		mCurrentState = STATE.STOPPED;
+		// update Timer one last time
+		updateTimer();
+		return false;
+	}
+	
 	/**
 	 * Sets up all of the elements in the current view.
 	 * <p>
