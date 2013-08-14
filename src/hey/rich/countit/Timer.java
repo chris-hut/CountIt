@@ -289,8 +289,8 @@ public class Timer extends StandOutWindow {
 	@Override
 	public StandOutLayoutParams getParams(int id, Window window) {
 		return new StandOutLayoutParams(id, 400, 300,
-				StandOutLayoutParams.AUTO_POSITION,
-				StandOutLayoutParams.AUTO_POSITION, 100, 100);
+				StandOutLayoutParams.CENTER,
+				StandOutLayoutParams.CENTER, 100, 100);
 	}
 
 	// / We want system window decorations, we want to drag the body, we want
