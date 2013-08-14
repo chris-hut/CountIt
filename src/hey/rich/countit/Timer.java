@@ -360,11 +360,4 @@ public class Timer extends StandOutWindow {
 		return items;
 	}
 
-	@Override
-	public boolean onFocusChange(int id, Window window, boolean focus) {
-		// hide the window until someone restores it.
-		// TODO: Make this actually work
-		// if(!focus) hide(id);
-		return false;
-	}
 }
