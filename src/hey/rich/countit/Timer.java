@@ -97,14 +97,14 @@ public class Timer extends StandOutWindow {
 
 	// Called before this window is closed
 	@Override
-	public boolean onClose(int id, Window window){
+	public boolean onClose(int id, Window window) {
 		// State should be stoped
 		mCurrentState = STATE.STOPPED;
 		// update Timer one last time
 		updateTimer();
 		return false;
 	}
-	
+
 	/**
 	 * Sets up all of the elements in the current view.
 	 * <p>
@@ -160,7 +160,22 @@ public class Timer extends StandOutWindow {
 					}
 				} else if (mCurrentState == STATE.RUNNING) {
 					// Create a lap
-					// TODO: implement lap things
+					mCurrentTime = System.currentTimeMillis() - mStartTime;
+					// TODO:
+					int milliSeconds = (int) (mCurrentTime % 1000);
+					milliSeconds /= 10;
+					int seconds = (int) (mCurrentTime / 1000);
+					int minutes = seconds / 60;
+					seconds = seconds % 60;
+
+					// TODO: Create method that returns formatted time string based on long passed into it.
+					Toast.makeText(
+							getApplicationContext(),
+							"Lap at: "
+									+ String.format("%d:%02d:%02d", minutes,
+											seconds, milliSeconds),
+							Toast.LENGTH_SHORT).show();
+					// TODO: Do better lap things
 				}
 			}
 		});
@@ -289,8 +304,8 @@ public class Timer extends StandOutWindow {
 	@Override
 	public StandOutLayoutParams getParams(int id, Window window) {
 		return new StandOutLayoutParams(id, 350, 300,
-				StandOutLayoutParams.CENTER,
-				StandOutLayoutParams.CENTER, 350, 300);
+				StandOutLayoutParams.CENTER, StandOutLayoutParams.CENTER, 350,
+				300);
 	}
 
 	// / We want system window decorations, we want to drag the body, we want
@@ -316,48 +331,6 @@ public class Timer extends StandOutWindow {
 	@Override
 	public Intent getPersistentNotificationIntent(int id) {
 		return StandOutWindow.getCloseIntent(this, Timer.class, id);
-	}
-
-	@Override
-	public Animation getShowAnimation(int id) {
-		if (isExistingId(id)) {
-			// restore
-			return AnimationUtils.loadAnimation(this,
-					android.R.anim.slide_in_left);
-		} else {
-			// show
-			return super.getShowAnimation(id);
-		}
-	}
-
-	@Override
-	public Animation getHideAnimation(int id) {
-		return AnimationUtils.loadAnimation(this,
-				android.R.anim.slide_out_right);
-	}
-
-	@Override
-	public List<DropDownListItem> getDropDownItems(int id) {
-		List<DropDownListItem> items = new ArrayList<DropDownListItem>();
-		items.add(new DropDownListItem(android.R.drawable.ic_menu_help,
-				"About", new Runnable() {
-					@Override
-					public void run() {
-						Toast.makeText(Timer.this,
-								getAppName() + " is a timer!",
-								Toast.LENGTH_SHORT).show();
-					}
-				}));
-		items.add(new DropDownListItem(android.R.drawable.ic_menu_preferences,
-				"Settings", new Runnable() {
-					@Override
-					public void run() {
-						// TODO: Add some settings here!
-						Toast.makeText(Timer.this, "No settings yet",
-								Toast.LENGTH_SHORT).show();
-					}
-				}));
-		return items;
 	}
 
 }
