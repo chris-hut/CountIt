@@ -1,5 +1,6 @@
 package hey.rich.countit;
 
+import hey.rich.Formats.Formats;
 import hey.rich.Formats.TimerFormat;
 
 import java.util.TimerTask;
@@ -46,7 +47,7 @@ public class Timer extends StandOutWindow {
 	private long mCurrentTime = 0L;
 
 	private int mId;
-	
+
 	private TimerFormat mTimerFormat;
 
 	@Override
@@ -61,7 +62,7 @@ public class Timer extends StandOutWindow {
 
 	@Override
 	public void createAndAttachView(int id, FrameLayout frame) {
-		mTimerFormat = new TimerFormat();
+		mTimerFormat = new TimerFormat(Formats.DEFAULT_FORMAT, true);
 		mId = id;
 		Log.d(LOG_TAG, "Created timer with id: " + id);
 		LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
@@ -76,6 +77,7 @@ public class Timer extends StandOutWindow {
 		mCurrentState = STATE.STOPPED;
 
 		mTimerText = (TextView) view.findViewById(R.id.timer);
+		mTimerText.setText(mTimerFormat.timeToString(0));
 
 		setUpViewElements();
 
@@ -162,19 +164,11 @@ public class Timer extends StandOutWindow {
 				} else if (mCurrentState == STATE.RUNNING) {
 					// Create a lap
 					mCurrentTime = System.currentTimeMillis() - mStartTime;
-					// TODO:
-					int milliSeconds = (int) (mCurrentTime % 1000);
-					milliSeconds /= 10;
-					int seconds = (int) (mCurrentTime / 1000);
-					int minutes = seconds / 60;
-					seconds = seconds % 60;
 
-					// TODO: Create method that returns formatted time string based on long passed into it.
 					Toast.makeText(
 							getApplicationContext(),
 							"Lap at: "
-									+ String.format("%d:%02d:%02d", minutes,
-											seconds, milliSeconds),
+									+ mTimerFormat.timeToString(mCurrentTime),
 							Toast.LENGTH_SHORT).show();
 					// TODO: Do better lap things
 				}
@@ -213,7 +207,7 @@ public class Timer extends StandOutWindow {
 			// Stopping timer
 			if (mClearTimer) {
 				mCurrentTime = 0L;
-				mTimerText.setText(String.format("%d:%02d:%02d", 0, 0, 0));
+				mTimerText.setText(mTimerFormat.timeToString(0));
 			} else {
 				mTimer.cancel();
 				mTimer.purge();
@@ -260,7 +254,6 @@ public class Timer extends StandOutWindow {
 			return false;
 		}
 	});
-
 
 	// tells handler to send a message
 	class CustomTimerTask extends TimerTask {
