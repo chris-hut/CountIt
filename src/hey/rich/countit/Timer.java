@@ -1,7 +1,7 @@
 package hey.rich.countit;
 
-import java.util.ArrayList;
-import java.util.List;
+import hey.rich.Formats.TimerFormat;
+
 import java.util.TimerTask;
 
 import wei.mark.standout.StandOutWindow;
@@ -14,8 +14,6 @@ import android.os.Message;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -48,6 +46,8 @@ public class Timer extends StandOutWindow {
 	private long mCurrentTime = 0L;
 
 	private int mId;
+	
+	private TimerFormat mTimerFormat;
 
 	@Override
 	public String getAppName() {
@@ -61,6 +61,7 @@ public class Timer extends StandOutWindow {
 
 	@Override
 	public void createAndAttachView(int id, FrameLayout frame) {
+		mTimerFormat = new TimerFormat();
 		mId = id;
 		Log.d(LOG_TAG, "Created timer with id: " + id);
 		LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
@@ -248,49 +249,18 @@ public class Timer extends StandOutWindow {
 		}
 	}
 
-	/**
-	 * Updates the timer Textview {@link mTimerText} based on
-	 * {@link mCurrentTime}
-	 */
-	private void updateTime(long time) {
-		int milliSeconds = (int) (time % 1000);
-		milliSeconds /= 10;
-		int seconds = (int) (time / 1000);
-		int minutes = seconds / 60;
-		seconds = seconds % 60;
-
-		updateTimerText(minutes, seconds, milliSeconds);
-
-	}
-
 	final Handler h = new Handler(new Callback() {
 		@Override
 		public boolean handleMessage(Message msg) {
 			long millis = System.currentTimeMillis() - mStartTime;
 			// Only care about every 10 milliseconds
-			updateTime(millis);
+			mTimerText.setText(mTimerFormat.timeToString(millis));
+			// updateTime(millis);
 
 			return false;
 		}
 	});
 
-	/**
-	 * Updates the text view {@link mTimerText} in the specified format. TODO:
-	 * Multiple formats here!
-	 * 
-	 * @param minutes
-	 *            Number of minutes
-	 * @param seconds
-	 *            Number of seconds
-	 * @param milliSeconds
-	 *            Number of milliSeconds
-	 */
-	private void updateTimerText(long minutes, long seconds, long milliSeconds) {
-		if (mTimerText != null) {
-			mTimerText.setText(String.format("%d:%02d:%02d", minutes, seconds,
-					milliSeconds));
-		}
-	}
 
 	// tells handler to send a message
 	class CustomTimerTask extends TimerTask {
