@@ -1,74 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<merge xmlns:android="http://schemas.android.com/apk/res/android"
-	android:layout_width="fill_parent"
-	android:layout_height="fill_parent" >
+<merge xmlns:android="http://schemas.android.com/apk/res/android" >
 
-	<RelativeLayout
-		android:layout_width="fill_parent"
-		android:layout_height="fill_parent" >
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:background="#fff3f3f3"
+        >
 
-		<ImageView
-			android:id="@+id/corner"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_alignParentBottom="true"
-			android:layout_alignParentRight="true"
-			android:contentDescription="@string/corner_description"
-			android:src="@drawable/corner" />
-
-		<ImageView
-			android:id="@+id/timer_menu"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_alignParentBottom="true"
-			android:layout_alignParentLeft="true"
-			android:contentDescription="@string/menu_description"
-			android:src="@android:drawable/ic_menu_more" />
-
-		<ImageView
-			android:id="@+id/timer_close"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_alignParentLeft="true"
-			android:layout_alignParentTop="true"
-			android:contentDescription="@string/close_description"
-			android:src="@android:drawable/ic_menu_close_clear_cancel" />
-
-		<RelativeLayout
-			android:id="@+id/timer_buttons_layout"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_above="@+id/timer_menu"
-			android:layout_centerHorizontal="true"
-			android:gravity="center" >
-
-			<ImageView
-				android:id="@+id/imageButtonPlayStop"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_marginRight="10dp"
-				android:contentDescription="@string/play_stop_button_desc"
-				android:src="@android:drawable/ic_media_play" />
-
-			<ImageView
-				android:id="@+id/imageButtonLapReset"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_alignTop="@+id/imageButtonPlayStop"
-				android:layout_marginLeft="10dp"
-				android:layout_toRightOf="@id/imageButtonPlayStop"
-				android:contentDescription="@string/lap_reset_button_desc"
-				android:src="@android:drawable/ic_menu_revert" />
-		</RelativeLayout>
-
-		<TextView
-			android:id="@+id/timer"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_above="@+id/timer_buttons_layout"
-			android:layout_below="@+id/timer_close"
-			android:layout_centerHorizontal="true"
-			android:textSize="40sp" />
-	</RelativeLayout>
+        <TextView
+            android:id="@+id/timer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/ics_blue"
+            android:textSize="40sp" />
+    </LinearLayout>
 
 </merge>

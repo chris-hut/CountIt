@@ -7,11 +7,18 @@
 	<string name="lap_reset_button_desc">Button used to lap or reset timer</string>
 	<string name="default_timer_text">00:00:00</string>
 	<string name="launch_floating_timer">Launch Timer</string>
+	<string name="close_floating_timer">Close Timer</string>
 	<string name="floating_notification_cancel_text">Click to cancel window</string>
 
 	<!-- Floating window Image View descriptions -->
 	<string name="corner_description">Corner of window</string>
 	<string name="menu_description">Menu for Timer</string>
 	<string name="close_description">Closes window</string>
+
+	<!-- Dialog strings -->
+	<string name="dialog_exit_timer">Exit timer?</string>
+	<string name="dialog_close_timer_confirm">Are you sure you want to close the timer?</string>
+	<string name="dialog_close_positive">Okay</string>
+	<string name="dialog_close_negative">Cancel</string>
 
 </resources>

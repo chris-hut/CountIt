@@ -1,7 +1,8 @@
-package hey.rich.countit;
+package hey.rich.floating;
 
 import hey.rich.Formats.Formats;
 import hey.rich.Formats.TimerFormat;
+import hey.rich.countit.R;
 
 import java.util.TimerTask;
 
@@ -15,19 +16,17 @@ import android.os.Message;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 public class Timer extends StandOutWindow {
 
-	private static final String LOG_TAG = "Timer";
+	private static final String TAG = "Timer";
+	public static final int DEFAULT_ID = 1;
 
+	// Timer view elements
 	private TextView mTimerText;
-	private ImageView mStartStopView;
-	private ImageView mLapResetView;
-	private ImageView mCloseView;
 
 	/** Contains various states application can be in */
 	private static enum STATE {
@@ -46,8 +45,6 @@ public class Timer extends StandOutWindow {
 	private long mStartTime = 0L;
 	private long mCurrentTime = 0L;
 
-	private int mId;
-
 	private TimerFormat mTimerFormat;
 
 	@Override
@@ -60,27 +57,32 @@ public class Timer extends StandOutWindow {
 		return android.R.drawable.ic_menu_more;
 	}
 
+	final Handler h = new Handler(new Callback() {
+		@Override
+		public boolean handleMessage(Message msg) {
+			long millis = System.currentTimeMillis() - mStartTime;
+			// Only care about every 10 milliseconds
+			mTimerText.setText(mTimerFormat.timeToString(millis));
+
+			return false;
+		}
+	});
+
 	@Override
 	public void createAndAttachView(int id, FrameLayout frame) {
 		mTimerFormat = new TimerFormat(Formats.DEFAULT_FORMAT, true);
-		mId = id;
-		Log.d(LOG_TAG, "Created timer with id: " + id);
+
+		Log.d(TAG, "Created timer with id: " + id);
 		LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
 		View view = inflater.inflate(R.layout.activity_timer, frame, true);
 
-		mStartStopView = (ImageView) view
-				.findViewById(R.id.imageButtonPlayStop);
-		mLapResetView = (ImageView) view.findViewById(R.id.imageButtonLapReset);
-		mCloseView = (ImageView) view.findViewById(R.id.timer_close);
-
-		// Set default state to stoped
+		// Set default state to stopped
 		mCurrentState = STATE.STOPPED;
 
 		mTimerText = (TextView) view.findViewById(R.id.timer);
 		mTimerText.setText(mTimerFormat.timeToString(0));
 
 		setUpViewElements();
-
 		/*
 		 * When creating the timer, we don't want any "current time" as we are
 		 * only ever going to be created from the button press in the main
@@ -98,91 +100,34 @@ public class Timer extends StandOutWindow {
 		mCurrentTime = 0L;
 	}
 
-	// Called before this window is closed
-	@Override
-	public boolean onClose(int id, Window window) {
-		// State should be stoped
-		mCurrentState = STATE.STOPPED;
-		// update Timer one last time
-		updateTimer();
-		return false;
-	}
-
-	/**
-	 * Sets up all of the elements in the current view.
-	 * <p>
-	 * Currently this is just: stop/start button, lap/reset button, and the
-	 * actual timer (Chronometer).
-	 * <p>
-	 * In the future there will be: ListView that contains the actual "laps"
-	 */
 	private void setUpViewElements() {
-		// Set the format of the timer
-		// TODO: make this customizable
-
-		mStartStopView.setOnClickListener(new View.OnClickListener() {
+		mTimerText.setOnClickListener(new OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
-				// TODO: UPDATE BUTTONS HAHA
-				// Check state
-				Log.d(LOG_TAG, "Clicked stop/start button");
 				if (mCurrentState == STATE.STOPPED) {
-
 					mCurrentState = STATE.RUNNING;
-
 					updateTimer();
-
 				} else if (mCurrentState == STATE.RUNNING) {
-
 					mCurrentState = STATE.STOPPED;
 					updateTimer();
-
 				} else {
 					// Invalid state
 					throw new RuntimeException("Invalid state: "
 							+ mCurrentState.toString());
 				}
-
 			}
 		});
+	}
 
-		mLapResetView.setOnClickListener(new View.OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				// Check state
-				Log.d(LOG_TAG, "Clicked lap/reset button");
-				if (mCurrentState == STATE.STOPPED) {
-					// Reset time
-					if (!mClearTimer) {
-						// Only allow user to reset time if it is not already
-						// reset
-						mClearTimer = true;
-						updateTimer();
-					}
-				} else if (mCurrentState == STATE.RUNNING) {
-					// Create a lap
-					mCurrentTime = System.currentTimeMillis() - mStartTime;
-
-					Toast.makeText(
-							getApplicationContext(),
-							"Lap at: "
-									+ mTimerFormat.timeToString(mCurrentTime),
-							Toast.LENGTH_SHORT).show();
-					// TODO: Do better lap things
-				}
-			}
-		});
-
-		mCloseView.setOnClickListener(new View.OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				// Close the window he-yo
-				close(mId);
-			}
-		});
+	// Called before this window is closed
+	@Override
+	public boolean onClose(int id, Window window) {
+		// State should be stopped
+		mCurrentState = STATE.STOPPED;
+		// update Timer one last time
+		updateTimer();
+		return false;
 	}
 
 	// Timer
@@ -222,38 +167,7 @@ public class Timer extends StandOutWindow {
 			throw new RuntimeException("Invalid state: "
 					+ mCurrentState.toString());
 		}
-		updateButtonIcons();
 	}
-
-	/** Updates the button icons based on state {@link mCurrentState} */
-	private void updateButtonIcons() {
-		if (mCurrentState == STATE.RUNNING) {
-			mStartStopView.setImageResource(android.R.drawable.ic_media_pause);
-			mLapResetView.setImageResource(android.R.drawable.ic_menu_save);
-
-		} else if (mCurrentState == STATE.STOPPED) {
-			mStartStopView.setImageResource(android.R.drawable.ic_media_play);
-			mLapResetView.setImageResource(android.R.drawable.ic_menu_revert);
-		} else {
-			if (mCurrentState == null) {
-				throw new RuntimeException("Current state is null");
-			}
-			throw new RuntimeException("Invalid state: "
-					+ mCurrentState.toString());
-		}
-	}
-
-	final Handler h = new Handler(new Callback() {
-		@Override
-		public boolean handleMessage(Message msg) {
-			long millis = System.currentTimeMillis() - mStartTime;
-			// Only care about every 10 milliseconds
-			mTimerText.setText(mTimerFormat.timeToString(millis));
-			// updateTime(millis);
-
-			return false;
-		}
-	});
 
 	// tells handler to send a message
 	class CustomTimerTask extends TimerTask {
@@ -266,18 +180,14 @@ public class Timer extends StandOutWindow {
 	// Make every window essentially the same size
 	@Override
 	public StandOutLayoutParams getParams(int id, Window window) {
-		return new StandOutLayoutParams(id, 350, 300,
-				StandOutLayoutParams.CENTER, StandOutLayoutParams.CENTER, 350,
-				300);
+		// TODO: Hardcode these values...don't
+		return new StandOutLayoutParams(id, 350, 100,
+				StandOutLayoutParams.CENTER, StandOutLayoutParams.CENTER);
 	}
 
-	// / We want system window decorations, we want to drag the body, we want
-	// the ability to hide windows, and we want to tap the window to bring to
-	// front
 	@Override
 	public int getFlags(int id) {
-		return StandOutFlags.FLAG_BODY_MOVE_ENABLE
-				| StandOutFlags.FLAG_WINDOW_EDGE_LIMITS_ENABLE
+		return super.getFlags(id) | StandOutFlags.FLAG_BODY_MOVE_ENABLE
 				| StandOutFlags.FLAG_WINDOW_FOCUSABLE_DISABLE;
 	}
 
@@ -295,5 +205,4 @@ public class Timer extends StandOutWindow {
 	public Intent getPersistentNotificationIntent(int id) {
 		return StandOutWindow.getCloseIntent(this, Timer.class, id);
 	}
-
 }

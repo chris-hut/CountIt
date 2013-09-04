@@ -30,7 +30,7 @@ public class TimerFormat {
 	}
 
 	public String timeToString(long time) {
-		int milliSeconds = (int) (time % 1000);
+		int milliSeconds = (int) (time % 1000);	
 		// Only want every 10 milliseconds - we're not fast enough for better
 		milliSeconds /= 10;
 		int seconds = (int) (time / 1000);
